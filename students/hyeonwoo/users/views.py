@@ -1,17 +1,18 @@
 import json
+import re
+
 from django.core.exceptions import ValidationError
+from django.shortcuts       import render
+from django.http            import JsonResponse
+from django.views           import View
 
-from django.shortcuts   import render
-from django.http        import JsonResponse
-from django.views       import View
-
-from .validation        import validation_email, validation_password
-from .models            import User
+from .validation            import validate_email, validate_password
+from .models                import User
 
 class SignUp(View):
     def post(self, request):
-        data = json.loads(request.body)
         try :
+            data = json.loads(request.body)
             first_name    = data['first_name']
             last_name     = data['last_name']
             user_name     = data['user_name']
@@ -19,8 +20,8 @@ class SignUp(View):
             password      = data['password']
             mobile_number = data['mobile_number']
 
-            validation_email(email)
-            validation_password(password)
+            validate_email(email)
+            validate_password(password)
             
             if User.objects.filter(email = email).exists():
                 return JsonResponse({'MESSAGE' : 'ALREADY_EXISTS_EMAIL'}, status=400)
@@ -33,33 +34,11 @@ class SignUp(View):
                 password      = password,
                 mobile_number = mobile_number
             )
-
+        
             return JsonResponse({'MESSAGE' : 'SUCCESS'}, status = 201)
         
-        except KeyError :
+        except KeyError:
             return JsonResponse({'MESSAGE' : 'KEY_ERROR'}, status = 400)
 
         except ValidationError as e:
             return JsonResponse({"MESSAGE" : (e.message)}, status = 400)
-
-
-    # def get(self, request):
-    #     users = User.objects.all()
-    #     results = []
-
-    #     for user in users:
-    #         results.append(
-    #             {
-    #                 "first_name"    : user.first_name,
-    #                 "last_name"     : user.last_name,
-    #                 "user_name"     : user.user_name,
-    #                 "email"         : user.email,
-    #                 "password"      : user.password,
-    #                 "mobile_number" : user.mobile_number
-    #             }
-    #         )
-        
-    #     return JsonResponse({"results" : results}, status=200)
-
-    
-
