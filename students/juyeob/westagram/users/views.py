@@ -9,18 +9,23 @@ from users.models import User
 
 class SignUpView(View):
     def post(self, request):
-        data = json.loads(request.body)
 
-        email           = data['email']
-        password        = data['password']
 
         try:
-            if not re.match(
-                '^[a-zA-Z0-9+-_.]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$', email):
-                return JsonResponse({"message": "ERROR_EMAIL_VALIDATION"}, status=400)
+            data = json.loads(request.body)
+
+            first_name   = data['first_name']
+            last_name    = data['last_name']
+            email        = data['email']
+            password     = data['password']
+            phone_number = data['phone_number']
 
             if (email == "") or (password == ""):
                 return JsonResponse({"message": "ERROR_EMPTY_EMAIL_OR_PASSWORD"}, status=400)
+
+            if not re.match(
+                '^[a-zA-Z0-9+-_.]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$', email):
+                return JsonResponse({"message": "ERROR_EMAIL_VALIDATION"}, status=400)
 
             if not re.match(
                 '^(?=.*[A-Za-z])(?=.*\d)(?=.*[$@$!%*#?&])[A-Za-z\d$@$!%*#?&]{8,}$', password):
@@ -30,11 +35,11 @@ class SignUpView(View):
                 return JsonResponse({"message": "ERROR_EMAIL_ALREADY_EXIST"}, status=400)
 
             User.objects.create(
-                first_name   = data['first_name'],
-                last_name    = data['last_name'],
+                first_name   = first_name,
+                last_name    = last_name,
                 email        = email,
                 password     = password,
-                phone_number = data['phone_number'],
+                phone_number = phone_number,
 
             )
             
