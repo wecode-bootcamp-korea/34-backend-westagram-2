@@ -10,7 +10,6 @@ from users.models import User
 class SignUpView(View):
     def post(self, request):
 
-
         try:
             data = json.loads(request.body)
 
