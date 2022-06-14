@@ -37,7 +37,6 @@ class SignUpView(View):
                 email        = email,
                 password     = password,
                 phone_number = phone_number,
-
             )
             
             return JsonResponse({"message": "SUCCESS"}, status=201)
