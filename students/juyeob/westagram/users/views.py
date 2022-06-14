@@ -1,5 +1,5 @@
 
-import json, bcrypt
+import json, bcrypt, jwt
 import re
 
 from django.http  import JsonResponse
@@ -19,6 +19,7 @@ class SignUpView(View):
             email        = data['email']
             password     = data['password']
             phone_number = data['phone_number']
+            hashed_password = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
 
             if not re.match(
                 '^[a-zA-Z0-9+-_.]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$', email):
@@ -35,7 +36,7 @@ class SignUpView(View):
                 first_name   = first_name,
                 last_name    = last_name,
                 email        = email,
-                password     = password,
+                password     = hashed_password,
                 phone_number = phone_number,
             )
             
