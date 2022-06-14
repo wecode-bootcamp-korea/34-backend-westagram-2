@@ -3,6 +3,7 @@ import json
 import re
 
 from django.http  import JsonResponse
+from json.decoder import JSONDecodeError
 from django.views import View
 
 from users.models import User
@@ -18,9 +19,6 @@ class SignUpView(View):
             email        = data['email']
             password     = data['password']
             phone_number = data['phone_number']
-
-            if (email == "") or (password == ""):
-                return JsonResponse({"message": "ERROR_EMPTY_EMAIL_OR_PASSWORD"}, status=400)
 
             if not re.match(
                 '^[a-zA-Z0-9+-_.]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$', email):
@@ -46,3 +44,5 @@ class SignUpView(View):
             
         except KeyError:
             return JsonResponse({"message": "KEY_ERROR"}, status=400)
+        except JSONDecodeError:
+            return JsonResponse({"message": "JSON_DECODE_ERROR"}, status=400)
