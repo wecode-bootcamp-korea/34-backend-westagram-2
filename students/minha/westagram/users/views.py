@@ -71,10 +71,10 @@ class LogInView(View):
             email_log_in    = data['email']
             password_log_in = data['password']
 
-            if not User.objects.filter(email=email_log_in).exists():
-                return JsonResponse({'message':'INVALED_USER'}, status=401)
-
-            if not User.objects.filter(password=password_log_in).exists():
+            if not User.objects.filter(
+                email    = email_log_in, 
+                password = password_log_in
+                ).exists() :
                 return JsonResponse({'message':'INVALED_USER'}, status=401)
 
             return JsonResponse({'message':'SUCCESS'}, status=200)
