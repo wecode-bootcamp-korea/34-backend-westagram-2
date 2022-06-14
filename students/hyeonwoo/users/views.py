@@ -25,6 +25,9 @@ class SignUp(View):
             
             if User.objects.filter(email = email).exists():
                 return JsonResponse({'MESSAGE' : 'ALREADY_EXISTS_EMAIL'}, status=400)
+            
+            if User.objects.filter(user_name = user_name).exists():
+                return JsonResponse({'MESSAGE' : 'ALREADY_EXISTS_USER_NAME'}, status=400)
 
             User.objects.create(
                 first_name    = first_name,
