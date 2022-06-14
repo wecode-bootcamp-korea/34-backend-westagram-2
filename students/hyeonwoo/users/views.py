@@ -1,5 +1,7 @@
 import json
 import re
+import bcrypt
+import jwt
 
 from django.core.exceptions import ValidationError
 from django.shortcuts       import render
@@ -29,12 +31,15 @@ class SignUp(View):
             if User.objects.filter(user_name = user_name).exists():
                 return JsonResponse({'MESSAGE' : 'ALREADY_EXISTS_USER_NAME'}, status=400)
 
+            hashed_password = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
+            decoded_password = hashed_password.decode('utf-8')
+
             User.objects.create(
                 first_name    = first_name,
                 last_name     = last_name,
                 user_name     = user_name,
                 email         = email,
-                password      = password,
+                password      = decoded_password,
                 mobile_number = mobile_number
             )
         
