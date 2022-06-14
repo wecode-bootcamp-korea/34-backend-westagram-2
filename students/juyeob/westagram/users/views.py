@@ -68,3 +68,5 @@ class LogInView(View):
             return JsonResponse({"message": "KEY_ERROR"}, status=400)
         except JSONDecodeError:
             return JsonResponse({"message": "JSON_DECODE_ERROR"}, status=400)
+
+#깃 테스트 파일 올라가나?
