@@ -50,7 +50,7 @@ class SignUpView(View):
             if User.objects.filter(email=email).exists():
                 return JsonResponse({'message':'DUPLICATED_EMAIL'}, status=400) #서로 다른 사람이 같은 이메일 사용 불가
             
-            hashed_password = bcrypt.hashpw( password.encode('utf-8'), bcrypt.gensalt() )
+            hashed_password  = bcrypt.hashpw( password.encode('utf-8'), bcrypt.gensalt() )
             User.objects.create(
                 username     = username,
                 first_name   = first_name,
