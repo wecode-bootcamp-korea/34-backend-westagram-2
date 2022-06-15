@@ -1,10 +1,10 @@
 
-import json, bcrypt
-import re
+import json, bcrypt, jwt, re
 
 from django.http  import JsonResponse
 from json.decoder import JSONDecodeError
 from django.views import View
+from django.conf  import settings
 
 from users.models import User
 
@@ -57,16 +57,24 @@ class LogInView(View):
             email    = data['email']
             password = data['password']
 
+            user = User.objects.get(email = email)
+
             if not User.objects.filter(email = email).exists():
                 return JsonResponse({"message": "INVALID_USER"}, status=401)         
 
-            if not User.objects.filter(password = password).exists():    
-                return JsonResponse({"message": "INVALID_USER"}, status=401)
+            if not bcrypt.checkpw(password.encode('utf-8'), user.password.encode('utf-8')):
+                    return JsonResponse({"message": "INVALID_PASSWORD"}, status=401)
 
-            if User.objects.get(email = email).password == bcrypt.checkpw()
-                return JsonResponse({"message": "SUCCESS"}, status=201)
+            access_token = jwt.encode({ 'user_id' : user.id }, settings.SECRET_KEY, algorithm='HS256').decode('utf-8')
+
+            return JsonResponse({
+                "message" : "SUCCESS",
+                "access_token" : access_token
+            }, status=200)
        
         except KeyError:
             return JsonResponse({"message": "KEY_ERROR"}, status=400)
         except JSONDecodeError:
             return JsonResponse({"message": "JSON_DECODE_ERROR"}, status=400)
+        except User.DoesNotExist:
+            return JsonResponse({"message" : "INVALID_EMAIL"}, status=401)
