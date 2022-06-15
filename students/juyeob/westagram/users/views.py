@@ -28,7 +28,7 @@ class SignUpView(View):
                 '^(?=.*[A-Za-z])(?=.*\d)(?=.*[$@$!%*#?&])[A-Za-z\d$@$!%*#?&]{8,}$', password):
                 return JsonResponse({"message": "ERROR_REQUIRE_8_LETTER,NUMBER,SPECIAL_SYMBOLS)"}, status=400)
 
-            if User.objects.filter(email = email).exists() :
+            if User.objects.filter(email = email).exists():
                 return JsonResponse({"message": "ERROR_EMAIL_ALREADY_EXIST"}, status=400)
 
             User.objects.create(
@@ -42,6 +42,30 @@ class SignUpView(View):
             
             return JsonResponse({"message": "SUCCESS"}, status=201)
             
+        except KeyError:
+            return JsonResponse({"message": "KEY_ERROR"}, status=400)
+        except JSONDecodeError:
+            return JsonResponse({"message": "JSON_DECODE_ERROR"}, status=400)
+
+
+class LogInView(View):
+    def post(self, request):
+        
+        try:
+            data = json.loads(request.body)
+
+            email    = data['email']
+            password = data['password']
+
+            if not User.objects.filter(email = email).exists():
+                return JsonResponse({"message": "INVALID_USER"}, status=401)         
+
+            if not User.objects.filter(password = password).exists():    
+                return JsonResponse({"message": "INVALID_USER"}, status=401)
+
+            if User.objects.get(email = email).password == password:
+                return JsonResponse({"message": "SUCCESS"}, status=201)
+       
         except KeyError:
             return JsonResponse({"message": "KEY_ERROR"}, status=400)
         except JSONDecodeError:
