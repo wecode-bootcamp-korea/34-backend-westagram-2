@@ -71,6 +71,7 @@ class LogInView(View):
                 "message" : "SUCCESS",
                 "access_token" : access_token
             }, status=200)
+
        
         except KeyError:
             return JsonResponse({"message": "KEY_ERROR"}, status=400)
