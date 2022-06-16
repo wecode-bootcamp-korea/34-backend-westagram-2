@@ -6,6 +6,7 @@ import json, re, bcrypt, jwt
 from django.http  import JsonResponse  
 from django.views import View 
 from django.conf  import settings
+
 from users.models import User
 
 class SignUpView(View):
@@ -67,15 +68,17 @@ class SignInView(View):
     def post(self, request):
         try:
             data         = json.loads(request.body)
-
+            email = data['email']
             user         = User.objects.get(email=data['email'])
+
+            if not User.objects.filter(email = email).exists() :
+                return JsonResponse({'message':'INVALED_USER'}, status=401)
+            if not bcrypt.checkpw(data['password'].encode('utf-8'), user.password.encode('utf-8')):
+                return JsonResponse({"message" : "INVALID_USER"}, status=401)
+            
             access_token = jwt.encode({"id" : user.id}, settings.SECRET_KEY, algorithm = settings.ALGORITHM)
 
-            if not bcrypt.checkpw(data['password'].encode('utf-8'), user.password.encode('utf-8')):
-                return JsonResponse({"message" : "INVALID_PASSWORD"}, status=401)
-
             return JsonResponse({
-                 "message"      : "SUCCESS",
                  "access_token" : access_token
             }, status=200)
 
