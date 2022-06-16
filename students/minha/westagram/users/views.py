@@ -1,12 +1,11 @@
 from django.shortcuts import render
 
 # Create your views here.
-import json
-import re
+import json, re, bcrypt, jwt
 
 from django.http  import JsonResponse  
 from django.views import View 
-
+from django.conf  import settings
 from users.models import User
 
 class SignUpView(View):
@@ -48,13 +47,14 @@ class SignUpView(View):
 
             if User.objects.filter(email=email).exists():
                 return JsonResponse({'message':'DUPLICATED_EMAIL'}, status=400) #서로 다른 사람이 같은 이메일 사용 불가
-
+            
+            hashed_password  = bcrypt.hashpw( password.encode('utf-8'), bcrypt.gensalt() )
             User.objects.create(
                 username     = username,
                 first_name   = first_name,
                 last_name    = last_name,
                 email        = email,
-                password     = password,
+                password     = hashed_password.decode('utf-8'),
                 phone_number = phone_number,
             )
             return JsonResponse({'message':'SUCCESS'}, status=201)
@@ -63,21 +63,22 @@ class SignUpView(View):
             return JsonResponse({'message':'KEY_ERROR'}, status=400)
 
 
-class LogInView(View):
+class SignInView(View):
     def post(self, request):
         try:
-            data            = json.loads(request.body)
+            data         = json.loads(request.body)
 
-            email_log_in    = data['email']
-            password_log_in = data['password']
+            user         = User.objects.get(email=data['email'])
+            access_token = jwt.encode({"id" : user.id}, settings.SECRET_KEY, algorithm = settings.ALGORITHM)
 
-            if not User.objects.filter(
-                email    = email_log_in, 
-                password = password_log_in
-                ).exists() :
-                return JsonResponse({'message':'INVALED_USER'}, status=401)
+            if not bcrypt.checkpw(data['password'].encode('utf-8'), user.password.encode('utf-8')):
+                return JsonResponse({"message" : "INVALID_PASSWORD"}, status=401)
 
-            return JsonResponse({'message':'SUCCESS'}, status=200)
+            return JsonResponse({
+                 "message"      : "SUCCESS",
+                 "access_token" : access_token
+            }, status=200)
+
 
         except KeyError:
             return JsonResponse({'message':'KEY_ERROR'}, status=400)
