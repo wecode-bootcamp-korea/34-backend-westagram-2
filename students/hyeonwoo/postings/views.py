@@ -7,3 +7,8 @@ from django.views           import View
 from .models                import Posting
 
 
+class PostingView(View):
+    def post(self, request):
+        try:
+            data = json.loads(request.body)
+            
