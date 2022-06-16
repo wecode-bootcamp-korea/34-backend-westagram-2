@@ -9,10 +9,10 @@ from django.views import View
 
 from users.models import User
 
-class UsersView(View):
+class SignUpView(View):
     def post(self, request):
         try:
-            data = json.loads(request.body)
+            data         = json.loads(request.body)
 
             username     = data['username']
             first_name   = data['first_name']
@@ -58,6 +58,26 @@ class UsersView(View):
                 phone_number = phone_number,
             )
             return JsonResponse({'message':'SUCCESS'}, status=201)
+
+        except KeyError:
+            return JsonResponse({'message':'KEY_ERROR'}, status=400)
+
+
+class LogInView(View):
+    def post(self, request):
+        try:
+            data            = json.loads(request.body)
+
+            email_log_in    = data['email']
+            password_log_in = data['password']
+
+            if not User.objects.filter(
+                email    = email_log_in, 
+                password = password_log_in
+                ).exists() :
+                return JsonResponse({'message':'INVALED_USER'}, status=401)
+
+            return JsonResponse({'message':'SUCCESS'}, status=200)
 
         except KeyError:
             return JsonResponse({'message':'KEY_ERROR'}, status=400)
