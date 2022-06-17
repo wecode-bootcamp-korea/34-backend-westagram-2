@@ -99,7 +99,8 @@ TIME_ZONE = 'Asia/Seoul'
 
 USE_I18N = True
 
-USE_TZ = True
+# 현재시간 적용을 위해서 True->False
+USE_TZ = False
 
 
 # Static files (CSS, JavaScript, Images)
